@@ -1,11 +1,25 @@
-# cypress-test-tiny
+# cypress-cookie-issue
 
-> Tiny Cypress E2E test case
+Because this test needed different hostnames to reproduce the behaviour we're seeing
+in our actual website, this contains a small Express.js server to run the tests against
+as well as the Cypress test case, and a Dockerfile to allow them to be run together.
 
-Build status | Name | Description
-:--- | :--- | :---
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/cypress-io/cypress-test-tiny/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/cypress-io/cypress-test-tiny/tree/master) | CircleCI | Linux & Mac & Win 64
+ Simplest way to reproduce:
+```
+docker build -t cypress-cookie-issue .
+docker run --rm -it --add-host="main-app:127.0.0.1" --add-host="secondary-app:127.0.0.1"  cypress-cookie-issue
+```
 
-## Important
+## Option 2
+You can also reproduce it by setting up entries for main-app and secondary-app
+in your hosts file to point to localhost and start the webapp using
+npm start, and cypress however you like.
 
-Note that this project **DOES NOT** include Cypress dependency in the [package.json](package.json). The reason for such omission is that we use this project to test every Cypress build and do not want to spend time installing `cypress@x.x.x` just to immediately install and test `cypress@y.y.y`. Which means when submitting pull requests with a bug report, please save the problematic version of Cypress in `package.json`. Simply run `npm install --save-dev cypress` or `npm i -D cypress@x.x.x` and commit the change before submitting a pull request.
+## Expected results
+The first test should pass, it's navigating on one domain,
+the second will fail with a simple navigation to a second domain,
+and the third will also fail but more closely matches our actual use
+where we are setting cookies on both sites visited.  I only realised
+it could be simplified further while preparing this example repo.
+
+I believe all three should pass if the issue is resolved.
